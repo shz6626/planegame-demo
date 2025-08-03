@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  body {
+    margin: 0;
+  }
+
+  .box {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: black;
+    color: #00ffff;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .plane {
+    width: 50px;
+    height: 70px;
+    background-color: aliceblue;
+    color: #ff2f2f;
+    position: absolute;
+    font-size: larger;
+    font-weight: bolder;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .player {
+    width: 50px;
+    height: 70px;
+    background-color: rgb(50, 160, 255);
+    position: absolute;
+  }
+
+  .bullet {
+    width: 4px;
+    height: 10px;
+    background-color: #ff2f2f;
+    position: absolute;
+  }
+
+  .list {
+    display: flex;
+    justify-content: space-between;
+    width: 500px;
+    height: 500px;
+    flex-direction: column;
+  }
+
+  .title {
+    white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #00ffff;
+    font-size: 100px;
+    font-weight: bolder;
+    width: 500px;
+    height: 100px;
+  }
+
+  .show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffd000;
+    font-size: 30px;
+    font-weight: bolder;
+    width: 500px;
+    height: 100px;
+  }
+
+  .showlist {
+    position: absolute;
+    top: 50%;
+    left: 15%;
+    display: flex;
+    justify-content: space-between;
+    border: 2px solid #00ffff;
+    width: 200px;
+    height: auto;
+    font-size: 30px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .shoplist {
+    display: flex;
+    justify-content: space-between;
+    border: 4px solid #00ffff;
+    width: 600px;
+    height: 700px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .item {
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffd000;
+    font-size: 40px;
+    font-weight: bolder;
+    border: 4px solid #00ffff;
+    width: 500px;
+    height: 100px;
+  }
+
+  .start,
+  .shop,
+  .option,
+  .quit,
+  .rtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 40px;
+    font-weight: bolder;
+    border: 4px solid #00ffff;
+    border-radius: 20px;
+    width: 500px;
+    height: 100px;
+  }
+
+  .start:hover,
+  .shop:hover,
+  .option:hover,
+  .quit:hover,
+  .rtn:hover,
+  .item:hover {
+    background-color: rgba(0, 255, 255, 0.2);
+  }
+</style>
+
+<body>
+  <div class="box">
+
+  </div>
+  <script>
+    const box = document.querySelector('.box')
+    let gold = +localStorage.getItem("gold")
+    let at = +localStorage.getItem("at")
+    //首次初始化
+    if (at == 0)
+      at = 2
+    menu()
+    //菜单-----------------------------------------------------------------------------------------------------
+    function menu() {
+      const list = document.createElement('div')
+      list.classList.add('list')
+      const start = document.createElement('div')
+      start.classList.add('start')
+      start.innerHTML = "开 始"
+      start.addEventListener('click', function () { box.innerHTML = ''; gamebegin() })
+      const shop = document.createElement('div')
+      shop.classList.add('shop')
+      shop.innerHTML = "商 店"
+      shop.addEventListener('click', function () { box.innerHTML = ''; toshop() })
+      const option = document.createElement('div')
+      option.classList.add('option')
+      option.innerHTML = "设 置"
+      option.addEventListener('click', function () { box.innerHTML = ''; tosettings() })
+      const quit = document.createElement('div')
+      quit.classList.add('quit')
+      quit.innerHTML = "退 出"
+      quit.addEventListener('click', function () { box.innerHTML = ''; toquit() })
+      box.appendChild(list)
+      list.appendChild(start)
+      list.appendChild(shop)
+      list.appendChild(option)
+      list.appendChild(quit)
+    }
+    //商店-----------------------------------------------------------------------------------------------------
+    function toshop() {
+      //列表样式
+      const list = document.createElement('div')
+      list.classList.add('shoplist')
+      //数值展示
+      const showlist = document.createElement('div')
+      showlist.classList.add('showlist')
+      showlist.innerHTML = `金币:${gold}<br>攻击${at}`
+      //物品样式
+      const addat = document.createElement('div')
+      addat.classList.add('item')
+      addat.innerHTML = `100金币==>攻击+2`
+      addat.addEventListener('click', function () {
+        //购买攻击
+        if (gold - 100 >= 0) {
+          gold -= 100
+          at += 2
+          showlist.innerHTML = `金币:${gold}<br>攻击${at}`
+          localStorage.setItem("gold", gold)
+          localStorage.setItem("at", at)
+        } else {
+          alert('金币不足')
+        }
+      })
+      //待开发
+      const none = document.createElement('div')
+      none.classList.add('item')
+      none.innerHTML = `待开发...`
+      //返回主菜单
+      const rtn = document.createElement('div')
+      rtn.classList.add('rtn')
+      rtn.innerHTML = '返回主菜单'
+      rtn.addEventListener('click', function () { box.innerHTML = ''; menu() })
+      //加入界面
+      box.appendChild(list)
+      list.appendChild(addat)
+      list.appendChild(none)
+      box.appendChild(rtn)
+      box.appendChild(showlist)
+    }
+    //设置-----------------------------------------------------------------------------------------------------
+    function tosettings() {
+      //列表样式
+      const list = document.createElement('div')
+      list.classList.add('list')
+      //待开发
+      const end = document.createElement('div')
+      end.classList.add('title')
+      end.innerHTML = '功能待开发...'
+      const rtn = document.createElement('div')
+      rtn.classList.add('rtn')
+      rtn.innerHTML = '返回主菜单'
+      rtn.addEventListener('click', function () { box.innerHTML = ''; menu() })
+      box.appendChild(list)
+      list.appendChild(end)
+      list.appendChild(rtn)
+    }
+    //退出-----------------------------------------------------------------------------------------------------
+    function toquit() {
+      window.close()
+    }
+    //游戏结束--------------------------------------------------------------------------------------------------
+    function gameover(score, kill) {
+      gold += score
+      localStorage.setItem("gold", gold)
+      //列表样式
+      const list = document.createElement('div')
+      list.classList.add('list')
+      //Gameover标题
+      const end = document.createElement('div')
+      end.classList.add('title')
+      end.innerHTML = 'Game over'
+      //战绩展示
+      const result1 = document.createElement('div')
+      result1.classList.add('show')
+      result1.innerHTML = `分数:${score}<br>杀敌:${kill}<br>金币+${score}`
+      const result2 = document.createElement('div')
+      result2.classList.add('show')
+      result2.innerHTML = `总金币:${gold}`
+      //返回主菜单
+      const rtn = document.createElement('div')
+      rtn.classList.add('rtn')
+      rtn.innerHTML = '返回主菜单'
+      rtn.addEventListener('click', function () { box.innerHTML = ''; menu() })
+      //添加到界面
+      box.appendChild(list)
+      list.appendChild(end)
+      list.appendChild(result1)
+      list.appendChild(result2)
+      list.appendChild(rtn)
+    }
+    //游戏开始-------------------------------------------------------------------------------------------------
+    function gamebegin() {
+      document.body.style.cursor = 'none'//隐藏鼠标
+      const player = document.createElement('div')//玩家
+      const box = document.querySelector('.box')//背景
+      let over = 0//初始状态
+      let score = 0//分数初始值
+      let kill = 0//击杀数
+      let AT = at//初始攻击
+      let HP = 10//初始敌机生命值
+      const timers = []//定时器数组,用于结束清算
+
+      //计数板
+      const showlist = document.createElement('div')
+      showlist.classList.add('showlist')
+      showlist.innerHTML = `分数:${score}<br>杀敌:${kill}<br>当前攻击力:${AT}`
+      showlist.style.top = 0
+      showlist.style.left = 0
+      box.appendChild(showlist)
+      //添加玩家
+      player.classList.add('player')
+      box.appendChild(player)
+      //敌人HP定时成倍增长
+      const HPadd = setInterval(function () {
+        HP *= 2
+      }, 10000)
+      timers.push(HPadd)
+      //创建敌机函数
+      function createplane() {
+        const plane = document.createElement('div')
+        plane.classList.add('plane')
+        plane.dataset.maxhp = HP//最大生命
+        plane.dataset.hp = HP//当前生命
+        plane.innerHTML = plane.dataset.hp
+        plane.style.left = `${Math.random() * box.offsetWidth - 70}px`//随机x轴出怪
+        box.appendChild(plane)
+        let y = 0
+        // 向下移动
+        const interval = setInterval(function () {
+          const topnum = +plane.style.top.replace(/px/g, "")
+          if (topnum > box.offsetHeight || !plane.isConnected) {
+            clearInterval(interval)
+            plane.remove()
+          } else {
+            y += 4//敌机速度
+            plane.style.top = `${y}px`
+          }
+        }, 16)
+        timers.push(interval)
+      }
+
+      //创建子弹
+      function createbullet() {
+        const b = document.createElement('div')
+        b.classList.add('bullet')
+        let y = +player.style.top.replace(/px/g, "")
+        b.style.top = `${y}px`
+        b.style.left = `${+player.style.left.replace(/px/g, "") + player.offsetWidth / 2}px`
+        box.appendChild(b)
+        const Binterval = setInterval(function () {
+          const topnum = +b.style.top.replace(/px/g, "")
+          if (topnum < 0) {
+            clearInterval(Binterval)
+            b.remove()
+          } else {
+            y -= 4
+            b.style.top = `${y}px`
+          }
+        }, 1)
+        timers.push(Binterval)
+      }
+      //鼠标跟随
+      document.addEventListener('mousemove', function (e) {
+        let x = e.clientX
+        let y = e.clientY
+        player.style.left = `${x - player.offsetWidth / 2}px`
+        player.style.top = `${y}px`
+      })
+      //定时射击
+      const createbullets = setInterval(function () {
+        if (over)
+          clearInterval(createbullets)
+        else
+          createbullet()
+      }, 100)
+      timers.push(createbullets)
+      //定时创建敌机
+      const createplanes = setInterval(function () {
+        if (over)
+          clearInterval(createplanes)
+        else
+          createplane()
+      }, 1280)
+      timers.push(createplanes)
+      //碰撞检测
+      const crushcheck = setInterval(function () {
+        const planes = document.querySelectorAll('.plane')
+        for (let plane of planes) {
+          let px = +plane.style.left.replace(/px/g, "")
+          let py = +plane.style.top.replace(/px/g, "")
+          let pw = plane.offsetWidth
+          let ph = plane.offsetHeight
+          const bullets = document.querySelectorAll('.bullet')
+          for (let bullet of bullets) {
+            let bx = +bullet.style.left.replace(/px/g, "")
+            let by = +bullet.style.top.replace(/px/g, "")
+            let bw = bullet.offsetWidth
+            let bh = bullet.offsetHeight
+            if (bx < px + pw && bx + bw > px && by < py + ph && by + bh > py) {
+              //血量降低
+              plane.dataset.hp -= AT
+              plane.innerHTML = `${plane.dataset.hp}`
+              //碰撞后立即移除子弹
+              bullet.remove();
+              //歼灭检测
+              if (plane.dataset.hp <= 0) {
+                score += +plane.dataset.maxhp
+                kill++
+                plane.remove();
+                //计分板更新
+                showlist.innerHTML = `分数:${score}<br>杀敌:${kill}<br>当前攻击力:${AT}`
+              }
+            }
+          }
+        }
+      }, 16)
+      timers.push(crushcheck)
+      //玩家碰撞检测
+      const playerCrushCheck = setInterval(function () {
+        const planes = document.querySelectorAll('.plane')
+        let plx = +player.style.left.replace(/px/g, "")
+        let ply = +player.style.top.replace(/px/g, "")
+        let plw = player.offsetWidth
+        let plh = player.offsetHeight
+        for (let plane of planes) {
+          let px = +plane.style.left.replace(/px/g, "")
+          let py = +plane.style.top.replace(/px/g, "")
+          let pw = plane.offsetWidth
+          let ph = plane.offsetHeight
+          if (px < plx + plw && px + pw > plx && py < ply + plh && py + ph > ply) {
+            over = 1 //游戏结束标志
+            box.innerHTML = ''
+            document.body.style.cursor = 'default'//显示鼠标
+            //清算定时器
+            timers.forEach(timer => clearInterval(timer))
+            //结算页面
+            gameover(score, kill);
+          }
+        }
+      }, 16)
+      timers.push(playerCrushCheck)
+    }
+    //-----------------------------------------------------------------------------------------------------
+  </script>
+</body>
+
+</html>
