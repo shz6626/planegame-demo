@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      color: #ffffff;
+      font-size: 100px;
+      font-weight: bolder;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+      justify-content: center;
+      align-items: center;
+      background-color: #000000;
+    }
+
+    .grid {
+      display: grid;
+      /* gap: 2px; */
+      width: auto;
+      height: auto;
+      background-color: #000000;
+    }
+
+    .cell {
+      width: 30px;
+      height: 30px;
+      background-color: #ffffff;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    gamebegin(25, 25)
+    //游戏开始
+    function gamebegin(row, col) {
+      let snakecolor='green'
+      let foodcolor='red'
+      //储存所有网格
+      let cells = []
+      cells = creategrid(row, col)
+      //储存蛇身
+      let snake = []
+      //随机网格选蛇头并推入snake数组尾部
+      let head = randomint(0, row * col - 1)
+      snake.push(head)
+      cells[head].style.backgroundColor = snakecolor
+      //初始化食物
+      cells[randomint(0, row * col - 1)].style.backgroundColor = foodcolor
+      //初始化方向
+      let direct = 3
+      //添加键盘事件
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowUp' && (direct != 1 || snake.length === 1))
+          direct = 0
+        if (e.key === 'ArrowDown' && (direct != 0 || snake.length === 1))
+          direct = 1
+        if (e.key === 'ArrowLeft' && (direct != 3 || snake.length === 1))
+          direct = 2
+        if (e.key === 'ArrowRight' && (direct != 2 || snake.length === 1))
+          direct = 3
+      })
+      //定时处理方向位置的新蛇头
+      let nexthead
+      const move = setInterval(function () {
+        switch (direct) {
+          case 0://上
+            if (head < col)//边界处理，以下同上
+              nexthead = head + col * (row - 1)
+            else
+              nexthead = head - col
+            break;
+          case 1://下
+            if (head >= col * (row - 1))
+              nexthead = head - col * (row - 1)
+            else
+              nexthead = head + col
+            break;
+          case 2://左
+            if (head % col === 0)
+              nexthead += col - 1
+            else
+              nexthead = head - 1
+            break;
+          case 3://右
+            if ((head + 1) % col === 0)
+              nexthead -= col - 1
+            else
+              nexthead = head + 1
+            break;
+        }
+        //先尾部判断是否下一步是食物，是则尾部停一步，用来加长蛇身
+        if (cells[nexthead].style.backgroundColor != foodcolor) {
+          cells[snake[0]].style.backgroundColor = '#ffffff'
+          snake.shift()
+        }
+        //再头部判断是否会撞到自己蛇身
+        if (cells[nexthead].style.backgroundColor != snakecolor) {
+          snake.push(nexthead)
+          //防止食物生成在蛇身所在位置（效率待优化）
+          if (cells[nexthead].style.backgroundColor === foodcolor) {
+            let randomindex = randomint(0, row * col - 1)
+            while (snake.includes(randomindex))
+              randomindex = randomint(0, row * col - 1)
+            cells[randomindex].style.backgroundColor = foodcolor
+          }
+          //增加新蛇头
+          cells[nexthead].style.backgroundColor = snakecolor
+          head = nexthead
+        } else
+          //失败
+          document.body.innerHTML = "YOU LOSE !"
+        //检测是否霸屏，是则通关
+        if (snake.length == row * col)
+          document.body.innerHTML = "YOU WIN !"
+      }, 200)
+    }
+    //生成网格
+    function creategrid(row, col) {
+      let cells = []
+      const grid = document.createElement('div')
+      grid.classList.add('grid')
+      //定义网格的行列数
+      grid.style.gridTemplateColumns = `repeat(${col},30px)`
+      grid.style.gridTemplateRows = `repeat(${row},30px)`
+      //将所有单元添加到网格
+      for (let i = 0; i < row * col; i++) {
+        const cell = document.createElement('div')
+        cell.classList.add('cell')
+        grid.appendChild(cell)
+        cells.push(cell)
+      }
+      document.body.appendChild(grid)
+      //返回所有网格
+      return cells
+    }
+    //随机数函数
+    function randomint(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+  </script>
+</body>
+
+</html>

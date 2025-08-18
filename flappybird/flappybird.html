@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      height: 100vh;
+      align-items: center;
+    }
+
+    .box {
+      width: 1200px;
+      height: 800px;
+      background-color: #000;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bird {
+      position: relative;
+      transform: translate(-50%, -50%);
+      top: 100px;
+      left: 15%;
+      width: 50px;
+      height: 50px;
+      background-color: #ff0000;
+    }
+
+    .pillar {
+      background-color: chartreuse;
+      width: 80px;
+      position: absolute;
+      left: 1200px;
+      top: 0;
+    }
+
+    .show {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 100px;
+      font-weight: bolder;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script>
+    //初始背景
+    const box = document.createElement('div')
+    box.classList.add('box')
+    document.body.appendChild(box)
+    //游戏开始
+    gamebegin()
+    //游戏开始函数
+    function gamebegin() {
+      //创建玩家
+      const bird = createbird()
+      //初始速度
+      speed = 0;
+      //计数器，用于后续平衡速度
+      i = 0
+      const birdtimer = setInterval(function () {
+        i++
+        //每五次计数增加下落速度，同时限制最大速度大小，避免加速度和速度过大
+        if (i % 5 === 0 && speed <= 10)
+          speed++
+        let y = +bird.style.top.replace(/px/g, "")
+        //防止飞出上边框
+        if (y < 0) {
+          y = 0
+          speed = 0
+        }
+        bird.style.top = `${y += speed}px`
+        //飞出下边框将导致游戏失败
+        if (+bird.style.top.replace(/px/g, "") >= 800) {
+          //失败函数
+          fail()
+          //清除计数器
+          clearInterval(birdtimer)
+          clearInterval(createpillar)
+          clearInterval(pillarmove)
+          clearInterval(crushcheck)
+          //清除遗存柱子
+          const ps = document.querySelectorAll('.pillar');
+          for (let p of ps)
+            p.remove();
+        }
+      }, 16)
+      //键盘事件，空格飞升 
+      document.addEventListener('keydown', function (e) {
+        if (e.key === ' ')
+          speed = -7//按下空格后速度变化为向上的 '7'，达到飞升的效果
+      })
+      //定时创建柱子
+      const createpillar = setInterval(function () {
+        //同时创建上下两条
+        const pillar1 = document.createElement('div')
+        pillar1.classList.add('pillar')
+        const pillar2 = document.createElement('div')
+        pillar2.classList.add('pillar')
+        //随机缺口位置，缺口大小固定为 200px
+        let h1 = randomint(1, 5) * 100
+        let h2 = 600 - h1
+        pillar1.style.height = `${h1}px`
+        pillar2.style.height = `${h2}px`
+        pillar2.style.top = `${h1 + 200}px`
+        //添加到界面
+        box.appendChild(pillar1)
+        box.appendChild(pillar2)
+      }, 2000)
+      //柱子移动
+      const pillarmove = setInterval(function () {
+        const pillars = document.querySelectorAll('.pillar')
+        for (const pillar of pillars) {
+          let x = +getComputedStyle(pillar).left.replace(/px/g, "")
+          //柱子移出界面时移除，优化性能
+          if (x < 0)
+            pillar.remove()
+          else {
+            x -= 4
+            pillar.style.left = `${x}px`
+          }
+        }
+      }, 16)
+    }
+    //碰撞检测
+    crushcheck = setInterval(function () {
+      const pillars = document.querySelectorAll('.pillar');
+      const birds = document.querySelectorAll('.bird');
+      for (let pillar of pillars) {
+        const p = pillar.getBoundingClientRect();
+        for (let bird of birds) {
+          const b = bird.getBoundingClientRect();
+          if (b.left < p.right && b.right > p.left && b.top < p.bottom && b.bottom > p.top) {
+            fail();
+            clearInterval(birdtimer);
+            clearInterval(createpillar);
+            clearInterval(pillarmove);
+            clearInterval(crushcheck);
+            const ps = document.querySelectorAll('.pillar');
+            for (let p of ps)
+              p.remove();
+          }
+        }
+      }
+    }, 16);
+    //创建玩家函数
+    function createbird() {
+      const bird = document.createElement('div')
+      bird.classList.add('bird')
+      box.appendChild(bird)
+      return bird
+    }
+    //失败函数
+    function fail() {
+      box.innerHTML = ''
+      const show = document.createElement('div')
+      show.classList.add('show')
+      show.innerHTML = "YOU FAILED"
+      box.appendChild(show)
+    }
+    //随机整数函数
+    function randomint(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+  </script>
+</body>
+
+</html>
